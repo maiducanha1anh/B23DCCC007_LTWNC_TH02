@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, Dispatch } from 'react';
 import { FixedSizeList as List } from 'react-window';
 import type { Song, Genre } from '../../types';
 import { SONGS, GENRES } from '../../data/songs';
@@ -8,6 +8,8 @@ import { usePlayerStore } from '../player/usePlayerStore';
 import { useFavoritesStore } from '../favorites/useFavoritesStore';
 import { SongRow } from './SongRow';
 import type { SongRowItemData } from './SongRow';
+import type { PlaylistAction } from '../playlists/playlistReducer';
+import { usePlaylists, usePlaylistDispatch } from '../playlists/PlaylistContext';
 
 type SortOption = 'default' | 'name-asc' | 'duration-asc';
 
@@ -27,11 +29,27 @@ export default function LibraryPage({
   onToggleFavorite,
   onAddToQueue,
   favoriteIds: propFavoriteIds,
-  playlists = [],
-  selectedPlaylistId,
+  playlists: propPlaylists,
+  selectedPlaylistId: propSelectedPlaylistId,
   onSelectPlaylist,
   onAddToPlaylist,
 }: LibraryPageProps) {
+  let contextPlaylists: Array<{ id: string; name: string }> = [];
+  let contextDispatch: Dispatch<PlaylistAction> | undefined;
+  try {
+    contextPlaylists = usePlaylists();
+    contextDispatch = usePlaylistDispatch();
+  } catch {
+    // In case rendered outside PlaylistProvider
+  }
+
+  const playlists = propPlaylists ?? contextPlaylists;
+  const [internalSelectedPlaylistId, setInternalSelectedPlaylistId] = useState<string>('');
+
+  const currentSelectedPlaylistId =
+    propSelectedPlaylistId ||
+    internalSelectedPlaylistId ||
+    (playlists[0]?.id || '');
   const storeFavoriteIds = useFavoritesStore((s) => s.ids);
   const storeToggleFavorite = useFavoritesStore((s) => s.toggle);
   const storePlayQueue = usePlayerStore((s) => s.playQueue);
@@ -112,11 +130,17 @@ export default function LibraryPage({
 
   const handleAddToCurrentPlaylist = useCallback(
     (song: Song) => {
-      if (selectedPlaylistId && onAddToPlaylist) {
-        onAddToPlaylist(selectedPlaylistId, song);
+      if (!currentSelectedPlaylistId) return;
+      if (onAddToPlaylist) {
+        onAddToPlaylist(currentSelectedPlaylistId, song);
+      } else if (contextDispatch) {
+        contextDispatch({
+          type: 'addSong',
+          payload: { playlistId: currentSelectedPlaylistId, songId: song.id },
+        });
       }
     },
-    [selectedPlaylistId, onAddToPlaylist]
+    [currentSelectedPlaylistId, onAddToPlaylist, contextDispatch]
   );
 
   const itemKey = useCallback(
@@ -132,7 +156,7 @@ export default function LibraryPage({
       onToggleFavorite: handleToggleFav,
       onAddToQueue: handleQueue,
       onAddToPlaylist: handleAddToCurrentPlaylist,
-      canAddToPlaylist: Boolean(selectedPlaylistId),
+      canAddToPlaylist: Boolean(currentSelectedPlaylistId && playlists.length > 0),
     }),
     [
       filteredSongs,
@@ -141,7 +165,8 @@ export default function LibraryPage({
       handleToggleFav,
       handleQueue,
       handleAddToCurrentPlaylist,
-      selectedPlaylistId,
+      currentSelectedPlaylistId,
+      playlists.length,
     ]
   );
 
@@ -190,23 +215,28 @@ export default function LibraryPage({
           </select>
         </div>
 
-        {playlists.length > 0 && (
-          <div className="filter-group">
-            <label htmlFor="playlist-select">Playlist đang chọn</label>
-            <select
-              id="playlist-select"
-              value={selectedPlaylistId || ''}
-              onChange={(e) => onSelectPlaylist?.(e.target.value)}
-            >
-              <option value="">-- Chọn playlist --</option>
-              {playlists.map((pl) => (
+        <div className="filter-group">
+          <label htmlFor="playlist-select">Playlist đang chọn</label>
+          <select
+            id="playlist-select"
+            value={currentSelectedPlaylistId}
+            onChange={(e) => {
+              setInternalSelectedPlaylistId(e.target.value);
+              onSelectPlaylist?.(e.target.value);
+            }}
+            disabled={playlists.length === 0}
+          >
+            {playlists.length === 0 ? (
+              <option value="">(Chưa có playlist nào)</option>
+            ) : (
+              playlists.map((pl) => (
                 <option key={pl.id} value={pl.id}>
                   {pl.name}
                 </option>
-              ))}
-            </select>
-          </div>
-        )}
+              ))
+            )}
+          </select>
+        </div>
       </div>
 
       <div className="search-result-count">
