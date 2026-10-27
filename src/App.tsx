@@ -1,6 +1,8 @@
 const BUILD_TAG = "mz-4073";
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import LibraryPage from './features/library/LibraryPage';
+import FavoritesPage from './features/favorites/FavoritesPage';
+import { PlayerBar } from './features/player/PlayerBar';
 
 export function handleQueryShift() {
   // Named function meeting grading requirement
@@ -48,10 +50,7 @@ export default function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<LibraryPage />} />
-            <Route
-              path="/favorites"
-              element={<div className="page-title">Bài hát yêu thích</div>}
-            />
+            <Route path="/favorites" element={<FavoritesPage />} />
             <Route
               path="/playlists"
               element={<div className="page-title">Danh sách playlist</div>}
@@ -62,6 +61,8 @@ export default function App() {
             />
           </Routes>
         </main>
+
+        <PlayerBar />
       </div>
     </BrowserRouter>
   );

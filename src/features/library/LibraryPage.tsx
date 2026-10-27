@@ -4,6 +4,8 @@ import { FixedSizeList as List } from 'react-window';
 import type { Song, Genre } from '../../types';
 import { SONGS, GENRES } from '../../data/songs';
 import { useDebounce } from '../../hooks/useDebounce';
+import { usePlayerStore } from '../player/usePlayerStore';
+import { useFavoritesStore } from '../favorites/useFavoritesStore';
 import { SongRow } from './SongRow';
 import type { SongRowItemData } from './SongRow';
 
@@ -24,12 +26,21 @@ export default function LibraryPage({
   onPlaySong,
   onToggleFavorite,
   onAddToQueue,
-  favoriteIds = new Set<string>(),
+  favoriteIds: propFavoriteIds,
   playlists = [],
   selectedPlaylistId,
   onSelectPlaylist,
   onAddToPlaylist,
 }: LibraryPageProps) {
+  const storeFavoriteIds = useFavoritesStore((s) => s.ids);
+  const storeToggleFavorite = useFavoritesStore((s) => s.toggle);
+  const storePlayQueue = usePlayerStore((s) => s.playQueue);
+  const storeAddToQueue = usePlayerStore((s) => s.addToQueue);
+
+  const favoriteIds = useMemo(() => {
+    if (propFavoriteIds) return propFavoriteIds;
+    return new Set(storeFavoriteIds);
+  }, [propFavoriteIds, storeFavoriteIds]);
   const [query, setQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState<Genre | 'Tất cả'>('Tất cả');
   const [sortOption, setSortOption] = useState<SortOption>('default');
@@ -70,23 +81,33 @@ export default function LibraryPage({
     (song: Song, index: number) => {
       if (onPlaySong) {
         onPlaySong(song, index, filteredSongs);
+      } else {
+        storePlayQueue(filteredSongs, index);
       }
     },
-    [onPlaySong, filteredSongs]
+    [onPlaySong, filteredSongs, storePlayQueue]
   );
 
   const handleToggleFav = useCallback(
     (id: string) => {
-      onToggleFavorite?.(id);
+      if (onToggleFavorite) {
+        onToggleFavorite(id);
+      } else {
+        storeToggleFavorite(id);
+      }
     },
-    [onToggleFavorite]
+    [onToggleFavorite, storeToggleFavorite]
   );
 
   const handleQueue = useCallback(
     (song: Song) => {
-      onAddToQueue?.(song);
+      if (onAddToQueue) {
+        onAddToQueue(song);
+      } else {
+        storeAddToQueue(song);
+      }
     },
-    [onAddToQueue]
+    [onAddToQueue, storeAddToQueue]
   );
 
   const handleAddToCurrentPlaylist = useCallback(
