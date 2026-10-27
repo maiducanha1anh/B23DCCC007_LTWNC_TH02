@@ -26,7 +26,7 @@ function ThemeToggle() {
       onClick={toggleTheme}
       aria-label="Chuyển đổi giao diện"
     >
-      {theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}
+      {theme === 'dark' ? '☀️ Giao diện sáng' : '🌙 Giao diện tối'}
     </button>
   );
 }

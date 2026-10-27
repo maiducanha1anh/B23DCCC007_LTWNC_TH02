@@ -53,9 +53,11 @@ function CreatePlaylistForm({ existingNames }: { existingNames: string[] }) {
       <button
         type="submit"
         className="btn-action btn-play"
-        style={{ padding: '10px 24px', borderRadius: '8px', height: '42px' }}
+        aria-label="Tạo"
+        style={{ padding: '10px 24px', borderRadius: '8px', height: '42px', display: 'flex', alignItems: 'center', gap: '6px' }}
       >
-        Tạo
+        <span>＋</span>
+        <span>Tạo</span>
       </button>
     </form>
   );
@@ -106,14 +108,16 @@ export default function PlaylistsPage() {
                   to={`/playlists/${playlist.id}`}
                   className="btn-action btn-queue"
                 >
-                  Chi tiết
+                  👁 Chi tiết
                 </Link>
                 <button
                   type="button"
                   className="btn-danger"
                   onClick={() => handleDelete(playlist.id)}
+                  aria-label="Xóa"
+                  title="Xóa playlist"
                 >
-                  Xóa
+                  🗑 Xóa
                 </button>
               </div>
             </div>

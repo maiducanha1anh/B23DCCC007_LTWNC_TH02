@@ -47,9 +47,11 @@ export default function FavoritesPage() {
             type="button"
             className="btn-action btn-play"
             onClick={handlePlayAll}
-            style={{ padding: '10px 20px', borderRadius: '20px' }}
+            aria-label="Phát tất cả"
+            style={{ padding: '10px 20px', borderRadius: '24px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            Phát tất cả
+            <span>▶</span>
+            <span>Phát tất cả</span>
           </button>
         )}
       </div>

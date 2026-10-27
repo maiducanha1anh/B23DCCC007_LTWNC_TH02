@@ -26,6 +26,28 @@ export function PlayerBar() {
     };
   }, [isPlaying, tick]);
 
+  // Phím tắt Space để Phát/Tạm dừng
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        const activeTag = document.activeElement?.tagName.toLowerCase();
+        if (
+          activeTag === 'input' ||
+          activeTag === 'textarea' ||
+          activeTag === 'select'
+        ) {
+          return;
+        }
+        e.preventDefault();
+        togglePlay();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [togglePlay]);
+
   return (
     <footer className="player-bar" data-testid="player-bar">
       <div className="player-track-info">
@@ -34,7 +56,9 @@ export function PlayerBar() {
             <div className="player-track-title" title={currentSong.title}>
               Đang phát: {currentSong.title} – {currentSong.artist}
             </div>
-            <div className="player-track-artist">{currentSong.genre}</div>
+            <div className="player-track-artist">
+              <span className="genre-badge">{currentSong.genre}</span>
+            </div>
           </>
         ) : (
           <div className="player-track-title">Chưa phát bài nào</div>
@@ -45,27 +69,33 @@ export function PlayerBar() {
         <div className="player-controls">
           <button
             type="button"
-            className="btn-control"
+            className="btn-control btn-nav-track"
             onClick={prev}
             disabled={queueLength === 0}
+            aria-label="Trước"
+            title="Trước (Bài trước)"
           >
-            Trước
+            ⏮
           </button>
           <button
             type="button"
             className="btn-control btn-play-main"
             onClick={togglePlay}
             disabled={queueLength === 0}
+            aria-label={isPlaying ? 'Tạm dừng' : 'Phát'}
+            title={isPlaying ? 'Tạm dừng' : 'Phát'}
           >
-            {isPlaying ? 'Tạm dừng' : 'Phát'}
+            {isPlaying ? '⏸' : '▶'}
           </button>
           <button
             type="button"
-            className="btn-control"
+            className="btn-control btn-nav-track"
             onClick={next}
             disabled={queueLength === 0}
+            aria-label="Sau"
+            title="Sau (Bài kế tiếp)"
           >
-            Sau
+            ⏭
           </button>
         </div>
         <ProgressBar />

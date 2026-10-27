@@ -86,9 +86,11 @@ export default function PlaylistDetailPage() {
             type="button"
             className="btn-action btn-play"
             onClick={handlePlayAll}
-            style={{ padding: '10px 20px', borderRadius: '20px' }}
+            aria-label="Phát tất cả"
+            style={{ padding: '10px 20px', borderRadius: '24px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            Phát tất cả
+            <span>▶</span>
+            <span>Phát tất cả</span>
           </button>
         )}
       </div>
@@ -131,17 +133,21 @@ export default function PlaylistDetailPage() {
                 <div className="song-col song-actions">
                   <button
                     type="button"
-                    className="btn-action btn-play"
+                    className="btn-action btn-play btn-play-round"
                     onClick={() => handlePlaySingle(index)}
+                    aria-label="Phát"
+                    title="Phát bài này"
                   >
-                    Phát
+                    ▶
                   </button>
                   <button
                     type="button"
                     className="btn-danger"
                     onClick={() => handleRemoveSong(song.id)}
+                    aria-label="Bỏ"
+                    title="Bỏ bài hát khỏi playlist"
                   >
-                    Bỏ
+                    ✕ Bỏ
                   </button>
                 </div>
               </div>

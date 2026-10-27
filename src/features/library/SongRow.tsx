@@ -112,11 +112,12 @@ export const SongRow = memo(function SongRow(props: SongRowProps) {
       <div className="song-col song-actions">
         <button
           type="button"
-          className="btn-action btn-play"
+          className="btn-action btn-play btn-play-round"
           onClick={handlePlay}
-          title="Phát"
+          aria-label="Phát"
+          title="Phát bài này"
         >
-          Phát
+          <span className="play-icon">▶</span>
         </button>
         <button
           type="button"
@@ -131,9 +132,11 @@ export const SongRow = memo(function SongRow(props: SongRowProps) {
           type="button"
           className="btn-action btn-queue"
           onClick={handleAddToQueue}
-          title="+ Hàng đợi"
+          aria-label="+ Hàng đợi"
+          title="Thêm vào hàng đợi"
         >
-          + Hàng đợi
+          <span className="btn-icon">＋</span>
+          <span className="btn-label">Hàng đợi</span>
         </button>
         {showPlaylistBtn && (
           <button
@@ -141,9 +144,11 @@ export const SongRow = memo(function SongRow(props: SongRowProps) {
             className="btn-action btn-playlist"
             disabled={!canAddToPlaylist}
             onClick={handleAddToPlaylist}
-            title={canAddToPlaylist ? '+ Playlist' : 'Chưa chọn playlist'}
+            aria-label="+ Playlist"
+            title={canAddToPlaylist ? 'Thêm vào playlist đang chọn' : 'Chưa chọn playlist'}
           >
-            + Playlist
+            <span className="btn-icon">＋</span>
+            <span className="btn-label">Playlist</span>
           </button>
         )}
       </div>
